@@ -1,0 +1,41 @@
+﻿@model EcomWeb1.Models.ViewModels.OrderVM
+
+<div class="row">
+    <div class="col-12">
+        <h2 class="text-info">Order Details</h2>
+    </div>
+</div>
+<div class="container rounded border p-2 m-2">
+    <div class="row">
+        <div class="col-12">
+            <h4>Order ID: @Model.OrderId</h4>
+            <h4>Customer Name: @Model.Name</h4>
+            <h4>Order Date: @Model.OrderDate</h4>
+        </div>
+    </div>
+    <table id="tblData" class="table table-hover table-striped table-bordered table-active " style="color:black; background-color:darkslategrey">
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderItems)
+            {
+                <tr>
+                    <td>@item.SerialNumber</td>
+                    <td>@item.ProductId</td>
+                    <td>@item.ProductName</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Price</td>
+                    <td>@item.Amount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

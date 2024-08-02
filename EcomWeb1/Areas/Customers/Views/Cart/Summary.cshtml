@@ -1,0 +1,182 @@
+﻿@model EcomWeb1.Models.ViewModels.ShoppingCartVM
+@using Microsoft.Extensions.Options
+@inject IOptions<EcomWeb1.Utility.StripeSettings> stripe;
+<form method="post">
+    <br />
+ 
+        <div class="container">
+            <div class="card">
+                <div class="card-header bg-dark text-light ml-0 row container">
+                    <div class="col-6">
+                        <i class="fa fa-shopping-cart"></i> &nbsp;
+                        Order Summary
+                    </div>
+                    <div class="col-6 text-right">
+                        <a asp-action="Index" class="btn btn-outline-info btn-sm">Back to Cart</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="container rounded p-2">
+                        <div class="row">
+                            <div class="col-12 col-lg-6 pb-4">
+                                <div class="row">
+                                    <h4 class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="text-info">PickUp Details:</span>
+                                    </h4>
+                                </div>
+                                <div class="row my-1">
+                                    <div class="col-3">
+                                        <label> </label>
+                                    </div>
+                                    <div class="col-9">
+                                        <select class="form-control col-12" id="pickupDetailDropdown">
+                                            <option value="default">Recent Use Address</option>
+                                            <!-- Populate the dropdown with unique addresses -->
+                                            @foreach (var address in Model.UniqueAddresses)
+                                            {
+                                                <option value="@address">@address</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row my-1">
+                                    <div class="col-3">
+                                        <label>Name</label>
+                                    </div>
+                                    <div class="col-9">
+                                        <input type="text" class="form-control" asp-for="OrderHeader.Name" />
+                                    </div>
+                                </div>
+                                <div class="row my-1">
+                                    <div class="col-3">
+                                        <label>Phone</label>
+                                    </div>
+                                    <div class="col-9">
+                                        <input type="text" class="form-control" asp-for="OrderHeader.PhoneNumber" />
+                                    </div>
+                                </div>
+                                <div class="row my-1">
+                                    <div class="col-3">
+                                        <label>Street Address</label>
+                                    </div>
+                                    <div class="col-9">
+                                        <input type="text" class="form-control" id="streetAddress" asp-for="OrderHeader.StreetAddress" />
+                                    </div>
+                                </div>
+                                <div class="row my-1">
+                                    <div class="col-3">
+                                        <label>City</label>
+                                    </div>
+                                    <div class="col-9">
+                                        <input type="text" class="form-control" id="city" asp-for="OrderHeader.City" />
+                                    </div>
+                                </div>
+                                <div class="row my-1">
+                                    <div class="col-3">
+                                        <label>State</label>
+                                    </div>
+                                    <div class="col-9">
+                                        <input type="text" class="form-control" id="state" asp-for="OrderHeader.State" />
+                                    </div>
+                                </div>
+                                <div class="row my-1">
+                                    <div class="col-3">
+                                        <label>Postal Code</label>
+                                    </div>
+                                    <div class="col-9">
+                                        <input type="text" class="form-control" id="postalCode" asp-for="OrderHeader.PostalCode" />
+                                    </div>
+                                    <input type="hidden" name="PaymentGatewayId" id="paymentGatewayId" value="">
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-5 offset-lg-1">
+                                <h4 class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-info">Order Summary:</span>
+                                </h4>
+                                <ul class="list-group mb-3">
+                                    @foreach (var list in Model.ListCart)
+                                    {
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="my-0">@list.Product.Title</h6>
+                                                <small class="text-muted">Quantity: @list.Count</small>
+                                            </div>
+                                        <span class="text-muted">₹ @(list.Product.Price * list.Count)</span>
+                                        </li>
+                                    }
+                                    <li class="list-group-item d-flex justify-content-between bg-light">
+                                        <small class="text-info">Total (INR)</small>
+                                    <strong class="text-info">₹ @Model.OrderHeader.OrderTotal</strong>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-12 col-md-8 pt-2">
+                            <p style="color:maroon; font-size:14px;">Estimate Arrival Date: @DateTime.Now.AddDays(7).ToShortDateString() - @DateTime.Now.AddDays(14).ToShortDateString()</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <!-- Radio buttons for payment gateway selection -->
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="PaymentGateway" id="paymentStripe" value="Stripe" checked>
+                                <label class="form-check-label" for="paymentStripe">
+                                    Pay with Stripe
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="PaymentGateway" id="paymentPayPal" value="PayPal">
+                                <label class="form-check-label" for="paymentPayPal">
+                                    Pay with PayPal
+                                </label>
+                            </div>
+                        </div>
+                        <!-- Submit button -->
+                        <div class="col-12 col-md-4 offset-4">
+                            <button type="submit" asp-controller="Cart" asp-action="Summary" class="btn btn-success form-control">Proceed to Payment</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</form>
+<script>
+    // JavaScript function to set the value of the hidden input field
+    function setPaymentGatewayId(paymentGatewayId) {
+        document.getElementById('paymentGatewayId').value = paymentGatewayId;
+    }
+
+    // Event listeners to call the function when a radio button is clicked
+    document.getElementById('paymentStripe').addEventListener('click', function () {
+        setPaymentGatewayId('Stripe');
+    });
+
+    document.getElementById('paymentPayPal').addEventListener('click', function () {
+        setPaymentGatewayId('PayPal');
+    });
+</script>
+<script>
+    // Function to handle the change event of the dropdown
+    document.getElementById('pickupDetailDropdown').addEventListener('change', function () {
+        var selectedAddress = this.value;
+        if (selectedAddress !== 'default') {
+            // Split the selected address into its components
+            var components = selectedAddress.split(', ');
+            // Update the respective text fields with the values of these components
+            document.getElementById('streetAddress').value = components[0];
+            document.getElementById('city').value = components[1];
+            document.getElementById('state').value = components[2];
+            document.getElementById('postalCode').value = components[3];
+        } else {
+            // Clear the text fields if the default option is selected
+            document.getElementById('streetAddress').value = '';
+            document.getElementById('city').value = '';
+            document.getElementById('state').value = '';
+            document.getElementById('postalCode').value = '';
+        }
+    });
+</script>
